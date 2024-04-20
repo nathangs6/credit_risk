@@ -140,7 +140,7 @@ function findX(s, v, w, D) {
     return (-b + Math.sqrt(b**2 - 4*a*c))/(2*a)
 }
 
-function find_pdl_step(D, V, vV, A, t, vS, S0) {
+function findPDLStep(D, V, vV, A, t, vS, S0) {
     let J = computeJacobian(V, vV, A, t, vS)
     let JT = math.transpose(J)
     let S = priceOption(V, A, vV, t)
@@ -170,16 +170,34 @@ function find_pdl_step(D, V, vV, A, t, vS, S0) {
 }
 
 function solve(V0, v0, A, t, S0, vS, max_iter, D) {
+    let tol = 0.0000001
     let V = V0
     let vV = v0
-    let dV
-    let dvV
-    for (let i = 0; i < max_iter; i++) {
-        [dV, dvV] = find_pdl_step(D, V, vV, A, t, vS, S0)
+    let dV = 10
+    let dvV = 10
+    let i = 0
+    while (i < max_iter && Math.abs(dV) > tol && Math.abs(dvV) > tol) {
+        [dV, dvV] = findPDLStep(D, V, vV, A, t, vS, S0)
         V = V + dV
         vV = vV + dvV
+        i++
+        console.log(dV, dvV)
+    }
+    if (i == max_iter) {
+        document.getElementById("output-alert").textContent = "WARNING: Convergence not reached!"
     }
     return [V, vV]
+}
+
+function getProbabilitiesOfDefault(V, v, A, max_t) {
+    let results = []
+    let d1
+    let d2
+    for (let t = 1; t < max_t+1; t++) {
+        [d1, d2] = dVals(V, A, v, t)
+        results.push(math.round(100*N(-d2), 4))
+    }
+    return results
 }
 
 function findSolutions() {
@@ -187,21 +205,26 @@ function findSolutions() {
     let vS = document.getElementById("equity-volatility").value
     let K = document.getElementById("debt").value
     let r = document.getElementById("risk-free-rate").value
+    let max_t = document.getElementById("num-years").value
+    let max_iter = document.getElementById("max-iter").value
     S0 = Number(S0)
     vS = Number(vS) / 100
     K = Number(K)
     r = Number(r) / 100
+    max_t = Number(max_t)
+    max_iter = Number(max_iter)
     let t = 1
     let A = getStrike(K, r, t)
     let V0 = S0 + K
     let v0 = vS
 
-    let max_iter = 1000
     let D = 1
 
     let [V, vV] = solve(V0, v0, A, t, S0, vS, max_iter, D)
+    let probs = getProbabilitiesOfDefault(V, vV, A, max_t)
     document.getElementById("assets").textContent = math.round(V, 4)
     document.getElementById("asset-volatility").textContent = math.round(vV * 100, 4)
     document.getElementById("equity-output").textContent = math.round(priceOption(V, A, vV, t), 4)
     document.getElementById("delta").textContent = math.round(delta(V, A, vV, t), 4)
+    document.getElementById("pdefault").textContent = probs.join("%, ") + "%"
 }

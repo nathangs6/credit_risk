@@ -18,7 +18,9 @@
 <body>
     <h1>Merton Model Credit Risk Calculator</h1>
     <p>
-      This is a credit risk calculator based on a simplified version of the Merton model. 
+      This is a credit risk calculator based on a simplified version of the Merton model.
+      One of my assignments for MAT1856 was to compare different credit risk models, the Merton model being one of them.
+      I thought the math behind it was fairly interesting, and so I decided to make a write-up and public implementation for it.
       The Merton model is based on the Black-Scholes formula for option prices, 
       and views a company's equity as a call option on its assets.
       Section I is the calculator itself.
@@ -26,10 +28,10 @@
       Section III contains the optimizer used for finding asset and asset volatility.
       Appendix A contains more detailed calculations.
       For software packages, I am using <a href="https://mathjs.org/">Math.js</a> for matrix calculations and CDF evaluations, and <a href="https://www.mathjax.org/">MathJax</a> for rendering LaTeX in HTML.
+      You can see all my code at the <a href="https://github.com/nathangs6/credit_risk">GitHub repository</a>. 
+      If you are interested in learning more about this, feel free to watch my <a href="https://www.youtube.com/watch?v=q1bC-Xqcm3A&list=PLZqGKBeV8wtZYt4GYWdgLhp--HzyCMJTg&index=10&t=8135s">professor's lecture</a>.
     </p>
     <h2>I. Calculator</h2>
-    Input the values needed and find the relevant outputs!
-    <h3>Input</h3>
     If you need help finding these values, you can go to the following sites (after choosing a company):
     <ul>
       <li>
@@ -55,15 +57,18 @@
         Risk-Free Rate: Go to <a href="https://www.bankofcanada.ca/rates/interest-rates/t-bill-yields/">Bank of Canada</a> and choose the latest 3-month treasury bill yield.
       </li>
     </ul>
+    <p>
+      The placeholders provide some example values.
+    </p>
     <form>
       <label for="equity">Equity:</label>
-      <input type="number" id="equity" name="equity"><br>
+      <input type="number" id="equity" name="equity" placeholder="2.087"><br>
       <label for="equity-volatility">Equity Volatility (%):</label>
-      <input type="number" id="equity-volatility" name="equity-volatility"><br>
+      <input type="number" id="equity-volatility" name="equity-volatility" placeholder="49.59"><br>
       <label for="debt">Debt:</label>
-      <input type="number" id="debt" name="debt"><br>
+      <input type="number" id="debt" name="debt" placeholder="4.759"><br>
       <label for="risk-free-rate">Risk-Free Rate (%):</label>
-      <input type="number" id="risk-free-rate" name="risk-free-rate"><br>
+      <input type="number" id="risk-free-rate" name="risk-free-rate" placeholder="3.17"><br>
       <label for="num-years">Number of Years for Probability of Default:</label>
       <input type="number" id="num-years" name="num-years" value="10"><br>
       <label for="max-iter">Max Solver Iterations:</label>
@@ -73,7 +78,7 @@
     <h3>Output</h3>
     <label for="assets">Assets: </label><span id="assets"></span><br>
     <label for="asset-volatility">Asset Volatility (%): </label><span id="asset-volatility"></span><br>
-    <label for="equity-output">Equity Output: </label><span id="equity-output"></span><br>
+    <label for="equity-output">$|E-E_0|$: </label><span id="equity-output"></span><br>
     <label for="delta">Delta: </label><span id="delta"></span><br>
     <label for="pdefault">Probability of Default: </label><span id="pdefault"></span><br>
     <span id="output-alert"></span>
